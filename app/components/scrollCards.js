@@ -7,8 +7,8 @@ export default function FlatCardFanCarousel() {
   const visibleCount = 7;
   const arcDegrees = 180;
   const angleStep = arcDegrees / (visibleCount - 1);
-  const cardWidth = 260;
-  const cardHeight = 360;
+  const cardWidth = 320;
+  const cardHeight = 440;
  
   const [offset, setOffset] = useState(0);
   const [radius, setRadius] = useState(0);
