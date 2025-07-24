@@ -4,7 +4,7 @@ import { useEffect, useState, useRef } from "react";
 export default function FlatCardFanCarousel() {
   const images = ['./cards/image1.png', './cards/image2.png', './cards/image3.png', './cards/image4.png', './cards/image5.png', './cards/image6.png', './cards/image7.png', './cards/image8.png', './cards/image9.png', './cards/image10.png']
   const total = images.length;
-  const visibleCount = 10;
+  const visibleCount = 8;
   const arcDegrees = 180;
   const angleStep = arcDegrees / (visibleCount - 1);
   const [cardWidth, setCardWidth] = useState(320);
@@ -28,9 +28,9 @@ export default function FlatCardFanCarousel() {
       setCardWidth(responsiveWidth);
       setCardHeight(responsiveHeight);
       
-      // Calculate radius so cards touch the edges completely
-      const cardHalfWidth = responsiveWidth / 2;
-      const dynamicRadius = (screenWidth / 2) - cardHalfWidth + 20;
+             // Calculate radius to ensure all cards are fully visible
+       const cardHalfWidth = responsiveWidth / 2;
+       const dynamicRadius = (screenWidth / 2) - cardHalfWidth + 50;
       setRadius(dynamicRadius);
     };
  
@@ -39,25 +39,26 @@ export default function FlatCardFanCarousel() {
     return () => window.removeEventListener("resize", updateDimensions);
   }, []);
  
-  // Auto scroll logic with pause on hover
+    // Auto scroll logic with pause on hover
   useEffect(() => {
     if (hoveredIndex === null) {
       intervalRef.current = setInterval(() => {
         setOffset((prev) => (prev - 1 + total) % total); // clockwise
-      }, 1500);
+      }, 2000);
     } else {
       clearInterval(intervalRef.current);
     }
- 
+
     return () => clearInterval(intervalRef.current);
   }, [hoveredIndex, total]);
  
   return (
     <div className="flex items-center justify-center min-h-screen w-full bg-gray-100 overflow-hidden">
       <div className="relative w-full h-screen">
-        {images.map((imgSrc, idx) => {
-          const relativeIndex = (idx - offset + total) % total;
-          if (relativeIndex >= visibleCount) return null;
+                 {images.map((imgSrc, idx) => {
+           const relativeIndex = (idx - offset + total) % total;
+           // Show more cards to ensure smooth looping
+           if (relativeIndex >= visibleCount + 2) return null;
  
           const angle = -arcDegrees / 2 + relativeIndex * angleStep;
           const rad = (angle * Math.PI) / 180;
@@ -78,17 +79,18 @@ export default function FlatCardFanCarousel() {
               key={idx}
               onMouseEnter={() => setHoveredIndex(idx)}
               onMouseLeave={() => setHoveredIndex(null)}
-              className={`absolute transition-all duration-700 ease-in-out cursor-pointer ${
-                isHovered ? "shadow-2xl" : "shadow-lg"
-              }`}
-              style={{
-                width: `${cardWidth}px`,
-                height: `${cardHeight}px`,
-                left: `calc(50% + ${x}px - ${cardWidth / 2}px)`,
-                top: `calc(50% + ${y}px - ${cardHeight / 2}px)`,
-                transform: `rotate(${rotate}deg) scale(${scale})`,
-                zIndex,
-              }}
+                             className={`absolute transition-all duration-1000 ease-in-out cursor-pointer ${
+                 isHovered ? "shadow-2xl" : "shadow-lg"
+               }`}
+                             style={{
+                 width: `${cardWidth}px`,
+                 height: `${cardHeight}px`,
+                 left: `calc(50% + ${x}px - ${cardWidth / 2}px)`,
+                 top: `calc(50% + ${y}px - ${cardHeight / 2}px)`,
+                 transform: `rotate(${rotate}deg) scale(${scale})`,
+                 zIndex: isHovered ? 1000 : zIndex,
+                 filter: isHovered ? 'none' : 'brightness(0.9)',
+               }}
             >
               <img
                 src={imgSrc}
