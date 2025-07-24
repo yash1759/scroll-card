@@ -4,30 +4,39 @@ import { useEffect, useState, useRef } from "react";
 export default function FlatCardFanCarousel() {
   const images = ['./cards/image1.png', './cards/image2.png', './cards/image3.png', './cards/image4.png', './cards/image5.png', './cards/image6.png', './cards/image7.png', './cards/image8.png', './cards/image9.png', './cards/image10.png']
   const total = images.length;
-  const visibleCount = 7;
+  const visibleCount = 10;
   const arcDegrees = 180;
   const angleStep = arcDegrees / (visibleCount - 1);
-  const cardWidth = 320;
-  const cardHeight = 440;
+  const [cardWidth, setCardWidth] = useState(320);
+  const [cardHeight, setCardHeight] = useState(440);
  
   const [offset, setOffset] = useState(0);
   const [radius, setRadius] = useState(0);
   const [hoveredIndex, setHoveredIndex] = useState(null);
   const intervalRef = useRef(null);
  
-  // Dynamically calculate radius based on screen width
+  // Dynamically calculate radius and card dimensions based on screen width
   useEffect(() => {
-    const updateRadius = () => {
+    const updateDimensions = () => {
       const screenWidth = window.innerWidth;
-      const padding = 100;
-      const arcLength = screenWidth - padding * 2;
-      const dynamicRadius = arcLength / Math.PI;
+      const screenHeight = window.innerHeight;
+      
+      // Calculate responsive card dimensions
+      const responsiveWidth = Math.min(screenWidth * 0.25, 400);
+      const responsiveHeight = responsiveWidth * 1.375; // Maintain aspect ratio
+      
+      setCardWidth(responsiveWidth);
+      setCardHeight(responsiveHeight);
+      
+      // Calculate radius so cards touch the edges completely
+      const cardHalfWidth = responsiveWidth / 2;
+      const dynamicRadius = (screenWidth / 2) - cardHalfWidth + 20;
       setRadius(dynamicRadius);
     };
  
-    updateRadius();
-    window.addEventListener("resize", updateRadius);
-    return () => window.removeEventListener("resize", updateRadius);
+    updateDimensions();
+    window.addEventListener("resize", updateDimensions);
+    return () => window.removeEventListener("resize", updateDimensions);
   }, []);
  
   // Auto scroll logic with pause on hover
@@ -44,8 +53,8 @@ export default function FlatCardFanCarousel() {
   }, [hoveredIndex, total]);
  
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100 overflow-hidden">
-      <div className="relative w-full h-[500px]">
+    <div className="flex items-center justify-center min-h-screen w-full bg-gray-100 overflow-hidden">
+      <div className="relative w-full h-screen">
         {images.map((imgSrc, idx) => {
           const relativeIndex = (idx - offset + total) % total;
           if (relativeIndex >= visibleCount) return null;
